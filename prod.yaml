@@ -61,12 +61,12 @@ font:
     id: arimo36                                         # ID used to reference this font
     size: 36                                            # Font size
     glyphs:                                             # Characters to include in font. Only 
-      - " .,:°%0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+      - " -.,:°%0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
   - file: "fonts/Arimo-Regular.ttf"  # Path to main font file
     id: arimo30                                         # ID used to reference this font
     size: 30                                            # Font size
     glyphs:                                             # Characters to include in font. Only 
-      - " .,:°%0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+      - " -.,:°%0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
   - file: "fonts/Arimo-Regular.ttf"                     # Giving an ID for a larger size of that font.
     id: arimo14
     size: 14
