@@ -13,6 +13,8 @@ esp32:
 
 # Enable logging
 logger:
+  logs:
+    text_sensor: WARN
 
 # Enable Home Assistant API
 api:
@@ -101,12 +103,6 @@ color:
     hex: "000000"
   - id: default_button_pressed_bg_color
     hex: "D3D3D3"
-#  - id: btn_1_color
-#    hex: "FFFFFF"                  # White
-#  - id: btn_2_color
-#    hex: "FFFFFF"                  # White
-#  - id: btn_3_color
-#    hex: "FFFFFF"                  # White
 
 # ============================================================ 
 # Home Assistant related setup
@@ -119,44 +115,6 @@ light:
     name: Display Backlight
     id: backlight
     restore_mode: ALWAYS_ON
-
-# ==== Touch Button Sensors for Home Assistant ====
-binary_sensor:
-  - platform: template
-    name: "Button 1"
-    id: button_1_pressed
-  - platform: template
-    name: "Button 2"
-    id: button_2_pressed
-  - platform: template
-    name: "Button 3"
-    id: button_3_pressed
-  - platform: template
-    name: "Button 4"
-    id: button_4_pressed
-  - platform: template
-    name: "Button 5"
-    id: button_5_pressed
-  - platform: template
-    name: "Button 6"
-    id: button_6_pressed
-
-# Page 2
-  - platform: template
-    name: "Button 10"
-    id: button_10_pressed
-  - platform: template
-    name: "Button 11"
-    id: button_11_pressed
-  - platform: template
-    name: "Button 12"
-    id: button_12_pressed
-  - platform: template
-    name: "Button 13"
-    id: button_13_pressed
-  - platform: template
-    name: "Button 14"
-    id: button_14_pressed
 
 # Anti-burn switch for LVGL pixel exercising
 switch:
@@ -412,6 +370,7 @@ text_sensor:
   - platform: template
     name: "Current Time"
     id: current_time_display
+    internal: true
     update_interval: 1s
     lambda: |-
       auto time = id(sntp_time).now();
@@ -561,13 +520,6 @@ lvgl:
                           action: light.toggle
                           data:
                             entity_id: light.decke_homeoffice
-                      - binary_sensor.template.publish:
-                          id: button_1_pressed
-                          state: ON
-                      - delay: 500ms
-                      - binary_sensor.template.publish:
-                          id: button_1_pressed
-                          state: OFF
               - button:
                   id: btn_2
                   grid_cell_column_pos: 1
@@ -587,13 +539,6 @@ lvgl:
                           action: light.toggle
                           data:
                             entity_id: light.spots_ho
-                      - binary_sensor.template.publish:
-                          id: button_2_pressed
-                          state: ON
-                      - delay: 500ms
-                      - binary_sensor.template.publish:
-                          id: button_2_pressed
-                          state: OFF
 
               - button:
                   id: btn_3
@@ -614,13 +559,6 @@ lvgl:
                           action: light.toggle
                           data:
                             entity_id: light.homeoffice_desklamp
-                      - binary_sensor.template.publish:
-                          id: button_3_pressed
-                          state: ON
-                      - delay: 500ms
-                      - binary_sensor.template.publish:
-                          id: button_3_pressed
-                          state: OFF
 
               - button:
                   id: btn_4
@@ -656,17 +594,6 @@ lvgl:
                         text: "--:--"
                         text_font: arimo30
                         align: center
-                  on_click:
-                    then:
-                      - binary_sensor.template.publish:
-                          id: button_5_pressed
-                          state: ON
-                      - delay: 500ms
-                      - binary_sensor.template.publish:
-                          id: button_5_pressed
-                          state: OFF
-
-
               - button:
                   id: btn_6
                   grid_cell_column_pos: 2
@@ -767,13 +694,6 @@ lvgl:
                         action: switch.toggle
                         data:
                           entity_id: switch.3d_drucker
-                    - binary_sensor.template.publish:
-                        id: button_10_pressed
-                        state: ON
-                    - delay: 500ms
-                    - binary_sensor.template.publish:
-                        id: button_10_pressed
-                        state: OFF
 
             - button:
                 id: btn_11
@@ -794,13 +714,6 @@ lvgl:
                         action: switch.toggle
                         data:
                           entity_id: switch.drucker
-                    - binary_sensor.template.publish:
-                        id: button_11_pressed
-                        state: ON
-                    - delay: 500ms
-                    - binary_sensor.template.publish:
-                        id: button_11_pressed
-                        state: OFF
 
             - button:
                 id: btn_13
@@ -821,13 +734,6 @@ lvgl:
                         action: switch.toggle
                         data:
                           entity_id: switch.cr10_leds
-                    - binary_sensor.template.publish:
-                        id: button_13_pressed
-                        state: ON
-                    - delay: 500ms
-                    - binary_sensor.template.publish:
-                        id: button_13_pressed
-                        state: OFF
 
             - button:
                 id: btn_14
@@ -848,13 +754,6 @@ lvgl:
                         action: switch.toggle
                         data:
                           entity_id: switch.cr6_leds
-                    - binary_sensor.template.publish:
-                        id: button_14_pressed
-                        state: ON
-                    - delay: 500ms
-                    - binary_sensor.template.publish:
-                        id: button_14_pressed
-                        state: OFF
 
             - button:
                 id: btn_12
@@ -875,13 +774,6 @@ lvgl:
                         action: switch.toggle
                         data:
                           entity_id: switch.drucker2
-                    - binary_sensor.template.publish:
-                        id: button_12_pressed
-                        state: ON
-                    - delay: 500ms
-                    - binary_sensor.template.publish:
-                        id: button_12_pressed
-                        state: OFF
 
             - button:
                 id: btn_18
