@@ -96,6 +96,7 @@ font:
       - 󰈐  # fan
       - 󰠝  # fan-off
       - 󰒍  # server
+      - 󰍹  # monitor
       - 󱄄  # monitor-shimmer
       - 󰒴  # smoking
       - 󰒵  # smoking-off
@@ -105,6 +106,7 @@ image:
     id: img_logo
     type: GRAYSCALE
     transparency: opaque
+    invert_alpha: true
 
 # Defines the colors we want to use later for the different buttons.
 # Per-button customizable colors
@@ -164,44 +166,6 @@ text_sensor:
       then:
         - lvgl.label.update:
             id: lbl_btn_9
-            text: !lambda |-
-              static char buf[16];
-              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
-                snprintf(buf, sizeof(buf), "--.-°C");
-                return buf;
-              }
-
-              float temp = std::atof(x.c_str());
-              snprintf(buf, sizeof(buf), "%.1f°C", temp);
-              return buf;
-
-# Show Dyson vent humidity on btn_8
-  - platform: homeassistant
-    id: dyson_vent_humidity
-    entity_id: sensor.dyson_vent_humidity
-    on_value:
-      then:
-        - lvgl.label.update:
-            id: lbl_btn_8
-            text: !lambda |-
-              static char buf[16];
-              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
-                snprintf(buf, sizeof(buf), "--.-%%");
-                return buf;
-              }
-
-              float hum = std::atof(x.c_str());
-              snprintf(buf, sizeof(buf), "%.1f%%", hum);
-              return buf;
-
-# Show Dyson vent temperature on btn_7
-  - platform: homeassistant
-    id: dyson_vent_temperature
-    entity_id: sensor.dyson_vent_temperature
-    on_value:
-      then:
-        - lvgl.label.update:
-            id: lbl_btn_7
             text: !lambda |-
               static char buf[16];
               if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
@@ -280,6 +244,67 @@ text_sensor:
                   icon = "󱬟";  // mdi:desk-lamp-off
               }
               snprintf(buf, sizeof(buf), "%s", icon.c_str());
+              return buf;
+
+  - platform: homeassistant
+    id: homeoffice_plug
+    entity_id: switch.plug_home_office
+    on_value:
+      then:
+        - lvgl.widget.update:
+            id: btn_4
+            state:
+              checked: !lambda return (0 == x.compare(std::string{"on"}));
+              disabled: !lambda return ((0 == x.compare(std::string{"unavailable"})) or (0 == x.compare(std::string{"unknown"})));
+        - lvgl.label.update:
+            id: lbl_btn_4
+            text: !lambda |-
+              static char buf[10];
+              std::string icon;
+              if (0 == x.compare(std::string{"on"})) {
+                  icon = "󱄄";
+              } else {
+                  icon = "󰍹";
+              }
+              snprintf(buf, sizeof(buf), "%s", icon.c_str());
+              return buf;
+
+# Show Dyson vent temperature on btn_7
+  - platform: homeassistant
+    id: dyson_vent_temperature
+    entity_id: sensor.dyson_vent_temperature
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_btn_7
+            text: !lambda |-
+              static char buf[16];
+              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
+                snprintf(buf, sizeof(buf), "--.-°C");
+                return buf;
+              }
+
+              float temp = std::atof(x.c_str());
+              snprintf(buf, sizeof(buf), "%.1f°C", temp);
+              return buf;
+
+# Show Dyson vent humidity on btn_8
+  - platform: homeassistant
+    id: dyson_vent_humidity
+    entity_id: sensor.dyson_vent_humidity
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_btn_8
+            text: !lambda |-
+              static char buf[16];
+              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
+                snprintf(buf, sizeof(buf), "--.-%%");
+                return buf;
+              }
+
+              float hum = std::atof(x.c_str());
+              snprintf(buf, sizeof(buf), "%.1f%%", hum);
               return buf;
 
   - platform: homeassistant
@@ -517,18 +542,18 @@ lvgl:
     button:
       # Match E32R35T theme exactly
       bg_color: 0x000000
-      bg_opa: COVER
+      #bg_opa: COVER
       border_color: 0xFFFFFF
       border_width: 1
       text_color: 0xFFFFFF
       pressed:
         bg_color: 0xC0C0C0
-        bg_grad_color: 0xC0C0C0
-        bg_opa: COVER
+        #bg_grad_color: 0xC0C0C0
+        #bg_opa: COVER
       checked:
-        bg_color: 0xFFFFFF
-        bg_grad_color: 0xFFFFFF
-        bg_opa: COVER
+        bg_color: 0x000000
+        #bg_grad_color: 0xFFFFFF
+        #bg_opa: COVER
         text_color: 0xFFFF00  # yellow icon when checked
   pages:
     - id: main_page
@@ -618,12 +643,12 @@ lvgl:
                         text: "󱄄"
                         text_font: font_mdi
                         align: center
-                  # on_click:
-                  #   then:
-                  #     - homeassistant.action:
-                  #         action: TBD -> Scene Monitor/Dockingstation on
-                  #         data:
-                  #           entity_id: TBD
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: switch.toggle
+                          data:
+                            entity_id: switch.plug_home_office
 
               - button:
                   id: btn_5
