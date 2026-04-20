@@ -934,7 +934,7 @@ lvgl:
                   - label:
                       id: lbl_btn_20
                       text: "20"
-                      text_font: font_mdi
+                      text_font: arimo36
                       align: center
 
             - button:
