@@ -93,6 +93,9 @@ font:
       - 󱩋  # led-stripe-off
       - 󰖪  # no-wifi
       - 󱍢  # dino
+      - 󰈐  # fan
+      - 󰠝  # fan-off
+      - 󰒍  # server
 
 # Defines the colors we want to use later for the different buttons.
 # Per-button customizable colors
@@ -306,6 +309,33 @@ text_sensor:
         - lvgl.label.update:
             id: lbl_btn_11
             text: "CR10"
+
+########## Temporarily useing CR10 Shelly for homelab fans
+
+  - platform: homeassistant
+    id: homelab_fans
+    entity_id: switch.drucker
+    on_value:
+      then:
+        - lvgl.widget.update:
+            id: btn_16
+            state:
+              checked: !lambda return (0 == x.compare(std::string{"on"}));
+              disabled: !lambda return ((0 == x.compare(std::string{"unavailable"})) or (0 == x.compare(std::string{"unknown"})));
+        - lvgl.label.update:
+            id: lbl_btn_16
+            text: !lambda |-
+              static char buf[10];
+              std::string icon;
+              if (0 == x.compare(std::string{"on"})) {
+                  icon = "󰈐";
+              } else {
+                  icon = "󰠝";
+              }
+              snprintf(buf, sizeof(buf), "%s", icon.c_str());
+              return buf;
+
+############## DELETE after implementing ESP32-based switch for fans
 
   - platform: homeassistant
     id: drucker_cr6
@@ -600,19 +630,25 @@ lvgl:
                         text: "--:--"
                         text_font: arimo30
                         align: center
+
               - button:
                   id: btn_6
                   grid_cell_column_pos: 2
                   grid_cell_row_pos: 1
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  checkable: true
+                  bg_color: default_button_bg_color
+                  pressed:
+                    bg_color: default_button_pressed_bg_color
                   widgets:
                     - label:
                         id: lbl_btn_6
-                        text: "󱍢"
+                        text: "󰒍"
                         text_font: font_mdi
                         align: center
+                  on_click:
+                    then:
+                     - lvgl.page.show: sub_page2
 
               - button:
                   id: btn_7
@@ -665,7 +701,7 @@ lvgl:
                         align: center
 
                  
-        # Sub page for adding new buttons etc
+        # Sub page for 3D-Printer
     - id: sub_page
       pad_all: 0
       widgets:
@@ -782,6 +818,77 @@ lvgl:
                           entity_id: switch.drucker2
 
             - button:
+                id: btn_15
+                grid_cell_column_pos: 2
+                grid_cell_row_pos: 0
+                grid_cell_row_span: 3
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                bg_color: default_button_bg_color
+                pressed:
+                  bg_color: default_button_pressed_bg_color
+                widgets:
+                  - label:
+                      id: lbl_btn_15
+                      text: "󰌑"
+                      text_font: font_mdi
+                      align: center
+                on_click:
+                  then:
+                  - lvgl.page.show: main_page
+
+        # Sub page for Homelab
+    - id: sub_page2
+      pad_all: 0
+      widgets:
+        - obj:
+            width: 320
+            height: 240
+            bg_color: room_bg_color
+            layout:
+              type: grid
+              grid_columns: [fr(1), fr(1), fr(1)]
+              grid_rows: [fr(1), fr(1), fr(1)]
+            pad_all: 5px
+            outline_pad: 5px
+            widgets:
+              # Add new buttons/widgets here
+            - button:
+                id: btn_16
+                grid_cell_column_pos: 0
+                grid_cell_row_pos: 0
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                checkable: true
+                widgets:
+                  - label:
+                      id: lbl_btn_16
+                      text: "󰤝"
+                      text_font: font_mdi
+                      align: center
+                on_click:
+                  then:
+                    - homeassistant.action:
+                        action: switch.toggle
+                        data:
+                          entity_id: switch.drucker
+
+            - button:
+                id: btn_17
+                grid_cell_column_pos: 1
+                grid_cell_row_pos: 0
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                checkable: true
+                widgets:
+                  - label:
+                      id: lbl_btn_17
+                      text: "17"
+                      text_font: arimo36
+                      align: center
+
+
+            - button:
                 id: btn_18
                 grid_cell_column_pos: 2
                 grid_cell_row_pos: 0
@@ -800,3 +907,61 @@ lvgl:
                 on_click:
                   then:
                   - lvgl.page.show: main_page
+
+            - button:
+                id: btn_19
+                grid_cell_column_pos: 0
+                grid_cell_row_pos: 1
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                checkable: true
+                widgets:
+                  - label:
+                      id: lbl_btn_19
+                      text: "19"
+                      text_font: arimo36
+                      align: center
+
+
+            - button:
+                id: btn_20
+                grid_cell_column_pos: 1
+                grid_cell_row_pos: 1
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                checkable: true
+                widgets:
+                  - label:
+                      id: lbl_btn_20
+                      text: "20"
+                      text_font: font_mdi
+                      align: center
+
+            - button:
+                id: btn_22
+                grid_cell_column_pos: 0
+                grid_cell_row_pos: 2
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                checkable: true
+                widgets:
+                  - label:
+                      id: lbl_btn_22
+                      text: "22"
+                      text_font: arimo36
+                      align: center
+
+
+            - button:
+                id: btn_23
+                grid_cell_column_pos: 1
+                grid_cell_row_pos: 2
+                grid_cell_x_align: STRETCH
+                grid_cell_y_align: STRETCH
+                checkable: true
+                widgets:
+                  - label:
+                      id: lbl_btn_23
+                      text: "23"
+                      text_font: arimo36
+                      align: center
