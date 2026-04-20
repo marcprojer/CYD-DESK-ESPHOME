@@ -96,6 +96,15 @@ font:
       - 󰈐  # fan
       - 󰠝  # fan-off
       - 󰒍  # server
+      - 󱄄  # monitor-shimmer
+      - 󰒴  # smoking
+      - 󰒵  # smoking-off
+
+image:
+  - file: pictures/logo.png
+    id: img_logo
+    type: GRAYSCALE
+    transparency: opaque
 
 # Defines the colors we want to use later for the different buttons.
 # Per-button customizable colors
@@ -318,12 +327,12 @@ text_sensor:
     on_value:
       then:
         - lvgl.widget.update:
-            id: btn_16
+            id: btn_24
             state:
               checked: !lambda return (0 == x.compare(std::string{"on"}));
               disabled: !lambda return ((0 == x.compare(std::string{"unavailable"})) or (0 == x.compare(std::string{"unknown"})));
         - lvgl.label.update:
-            id: lbl_btn_16
+            id: lbl_btn_24
             text: !lambda |-
               static char buf[10];
               std::string icon;
@@ -602,18 +611,19 @@ lvgl:
                   grid_cell_row_pos: 1
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  bg_color: default_button_bg_color
-                  pressed:
-                    bg_color: default_button_pressed_bg_color
+                  clickable: true
                   widgets:
                     - label:
                         id: lbl_btn_4
-                        text: "󰟽"
+                        text: "󱄄"
                         text_font: font_mdi
                         align: center
-                  on_click:
-                    then:
-                     - lvgl.page.show: sub_page
+                  # on_click:
+                  #   then:
+                  #     - homeassistant.action:
+                  #         action: TBD -> Scene Monitor/Dockingstation on
+                  #         data:
+                  #           entity_id: TBD
 
               - button:
                   id: btn_5
@@ -637,18 +647,16 @@ lvgl:
                   grid_cell_row_pos: 1
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  bg_color: default_button_bg_color
+                  bg_color: 0xFFFFFF
                   pressed:
                     bg_color: default_button_pressed_bg_color
                   widgets:
-                    - label:
-                        id: lbl_btn_6
-                        text: "󰒍"
-                        text_font: font_mdi
+                    - image:
+                        src: img_logo
                         align: center
                   on_click:
                     then:
-                     - lvgl.page.show: sub_page2
+                     - lvgl.page.show: sub_page_menu
 
               - button:
                   id: btn_7
@@ -700,145 +708,8 @@ lvgl:
                         text_font: arimo30
                         align: center
 
-                 
-        # Sub page for 3D-Printer
-    - id: sub_page
-      pad_all: 0
-      widgets:
-        - obj:
-            width: 320
-            height: 240
-            bg_color: room_bg_color
-            layout:
-              type: grid
-              grid_columns: [fr(1), fr(1), fr(1)]
-              grid_rows: [fr(1), fr(1), fr(1)]
-            pad_all: 5px
-            outline_pad: 5px
-            widgets:
-              # Add new buttons/widgets here
-            - button:
-                id: btn_10
-                grid_cell_column_pos: 0
-                grid_cell_row_pos: 0
-                grid_cell_x_align: STRETCH
-                grid_cell_y_align: STRETCH
-                checkable: true
-                widgets:
-                  - label:
-                      id: lbl_btn_10
-                      text: "󰤝"
-                      text_font: font_mdi
-                      align: center
-                on_click:
-                  then:
-                    - homeassistant.action:
-                        action: switch.toggle
-                        data:
-                          entity_id: switch.3d_drucker
-
-            - button:
-                id: btn_11
-                grid_cell_column_pos: 0
-                grid_cell_row_pos: 1
-                grid_cell_x_align: STRETCH
-                grid_cell_y_align: STRETCH
-                checkable: true
-                widgets:
-                  - label:
-                      id: lbl_btn_11
-                      text: "CR10"
-                      text_font: arimo36
-                      align: center
-                on_click:
-                  then:
-                    - homeassistant.action:
-                        action: switch.toggle
-                        data:
-                          entity_id: switch.drucker
-
-            - button:
-                id: btn_13
-                grid_cell_column_pos: 1
-                grid_cell_row_pos: 1
-                grid_cell_x_align: STRETCH
-                grid_cell_y_align: STRETCH
-                checkable: true
-                widgets:
-                  - label:
-                      id: lbl_btn_13
-                      text: "󰌑"
-                      text_font: font_mdi
-                      align: center
-                on_click:
-                  then:
-                    - homeassistant.action:
-                        action: switch.toggle
-                        data:
-                          entity_id: switch.cr10_leds
-
-            - button:
-                id: btn_14
-                grid_cell_column_pos: 1
-                grid_cell_row_pos: 2
-                grid_cell_x_align: STRETCH
-                grid_cell_y_align: STRETCH
-                checkable: true
-                widgets:
-                  - label:
-                      id: lbl_btn_14
-                      text: "󰌑"
-                      text_font: font_mdi
-                      align: center
-                on_click:
-                  then:
-                    - homeassistant.action:
-                        action: switch.toggle
-                        data:
-                          entity_id: switch.cr6_leds
-
-            - button:
-                id: btn_12
-                grid_cell_column_pos: 0
-                grid_cell_row_pos: 2
-                grid_cell_x_align: STRETCH
-                grid_cell_y_align: STRETCH
-                checkable: true
-                widgets:
-                  - label:
-                      id: lbl_btn_12
-                      text: "CR6"
-                      text_font: arimo36
-                      align: center
-                on_click:
-                  then:
-                    - homeassistant.action:
-                        action: switch.toggle
-                        data:
-                          entity_id: switch.drucker2
-
-            - button:
-                id: btn_15
-                grid_cell_column_pos: 2
-                grid_cell_row_pos: 0
-                grid_cell_row_span: 3
-                grid_cell_x_align: STRETCH
-                grid_cell_y_align: STRETCH
-                bg_color: default_button_bg_color
-                pressed:
-                  bg_color: default_button_pressed_bg_color
-                widgets:
-                  - label:
-                      id: lbl_btn_15
-                      text: "󰌑"
-                      text_font: font_mdi
-                      align: center
-                on_click:
-                  then:
-                  - lvgl.page.show: main_page
-
-        # Sub page for Homelab
-    - id: sub_page2
+# Sub page for menu
+    - id: sub_page_menu
       pad_all: 0
       widgets:
         - obj:
@@ -859,19 +730,19 @@ lvgl:
                 grid_cell_row_pos: 0
                 grid_cell_x_align: STRETCH
                 grid_cell_y_align: STRETCH
-                checkable: true
+                bg_color: default_button_bg_color
+                pressed:
+                  bg_color: default_button_pressed_bg_color
                 widgets:
                   - label:
-                      id: lbl_btn_16
-                      text: "󰤝"
-                      text_font: font_mdi
-                      align: center
+                        id: lbl_btn_16
+                        text: "󰟽"
+                        text_font: font_mdi
+                        align: center
                 on_click:
                   then:
-                    - homeassistant.action:
-                        action: switch.toggle
-                        data:
-                          entity_id: switch.drucker
+                  - lvgl.page.show: sub_page_3d
+
 
             - button:
                 id: btn_17
@@ -879,13 +750,18 @@ lvgl:
                 grid_cell_row_pos: 0
                 grid_cell_x_align: STRETCH
                 grid_cell_y_align: STRETCH
-                checkable: true
+                bg_color: default_button_bg_color
+                pressed:
+                  bg_color: default_button_pressed_bg_color
                 widgets:
                   - label:
                       id: lbl_btn_17
-                      text: "17"
-                      text_font: arimo36
+                      text: "󰒍"
+                      text_font: font_mdi
                       align: center
+                on_click:
+                  then:
+                  - lvgl.page.show: sub_page_homelab
 
 
             - button:
@@ -962,6 +838,198 @@ lvgl:
                 widgets:
                   - label:
                       id: lbl_btn_23
-                      text: "23"
-                      text_font: arimo36
+                      text: "󰒴"
+                      text_font: font_mdi
                       align: center
+                 
+# Sub page for 3D-Printer
+    - id: sub_page_3d
+      pad_all: 0
+      widgets:
+          - obj:
+              width: 320
+              height: 240
+              bg_color: room_bg_color
+              layout:
+                type: grid
+                grid_columns: [fr(1), fr(1), fr(1)]
+                grid_rows: [fr(1), fr(1), fr(1)]
+              pad_all: 5px
+              outline_pad: 5px
+              widgets:
+                # Add new buttons/widgets here
+              - button:
+                  id: btn_10
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  checkable: true
+                  widgets:
+                    - label:
+                        id: lbl_btn_10
+                        text: "󰤝"
+                        text_font: font_mdi
+                        align: center
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: switch.toggle
+                          data:
+                            entity_id: switch.3d_drucker
+
+              - button:
+                  id: btn_11
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 1
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  checkable: true
+                  widgets:
+                    - label:
+                        id: lbl_btn_11
+                        text: "CR10"
+                        text_font: arimo36
+                        align: center
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: switch.toggle
+                          data:
+                            entity_id: switch.drucker
+
+              - button:
+                  id: btn_13
+                  grid_cell_column_pos: 1
+                  grid_cell_row_pos: 1
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  checkable: true
+                  widgets:
+                    - label:
+                        id: lbl_btn_13
+                        text: "󰌑"
+                        text_font: font_mdi
+                        align: center
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: switch.toggle
+                          data:
+                            entity_id: switch.cr10_leds
+
+              - button:
+                  id: btn_14
+                  grid_cell_column_pos: 1
+                  grid_cell_row_pos: 2
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  checkable: true
+                  widgets:
+                    - label:
+                        id: lbl_btn_14
+                        text: "󰌑"
+                        text_font: font_mdi
+                        align: center
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: switch.toggle
+                          data:
+                            entity_id: switch.cr6_leds
+
+              - button:
+                  id: btn_12
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 2
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  checkable: true
+                  widgets:
+                    - label:
+                        id: lbl_btn_12
+                        text: "CR6"
+                        text_font: arimo36
+                        align: center
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: switch.toggle
+                          data:
+                            entity_id: switch.drucker2
+
+              - button:
+                  id: btn_15
+                  grid_cell_column_pos: 2
+                  grid_cell_row_pos: 0
+                  grid_cell_row_span: 3
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  bg_color: default_button_bg_color
+                  pressed:
+                    bg_color: default_button_pressed_bg_color
+                  widgets:
+                    - label:
+                        id: lbl_btn_15
+                        text: "󰌑"
+                        text_font: font_mdi
+                        align: center
+                  on_click:
+                    then:
+                    - lvgl.page.show: sub_page_menu
+
+# Sub page for Homelab
+    - id: sub_page_homelab
+      pad_all: 0
+      widgets:
+          - obj:
+              width: 320
+              height: 240
+              bg_color: room_bg_color
+              layout:
+                type: grid
+                grid_columns: [fr(1), fr(1), fr(1)]
+                grid_rows: [fr(1), fr(1), fr(1)]
+              pad_all: 5px
+              outline_pad: 5px
+              widgets:
+                # Add new buttons/widgets here
+              - button:
+                  id: btn_24
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  checkable: true
+                  widgets:
+                    - label:
+                        id: lbl_btn_24
+                        text: "󰤝"
+                        text_font: font_mdi
+                        align: center
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: switch.toggle
+                          data:
+                            entity_id: switch.drucker
+
+              - button:
+                  id: btn_32
+                  grid_cell_column_pos: 2
+                  grid_cell_row_pos: 0
+                  grid_cell_row_span: 3
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  bg_color: default_button_bg_color
+                  pressed:
+                    bg_color: default_button_pressed_bg_color
+                  widgets:
+                    - label:
+                        id: lbl_btn_32
+                        text: "󰌑"
+                        text_font: font_mdi
+                        align: center
+                  on_click:
+                    then:
+                    - lvgl.page.show: sub_page_menu
