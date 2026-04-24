@@ -344,33 +344,6 @@ text_sensor:
             id: lbl_btn_11
             text: "CR10"
 
-########## Temporarily useing CR10 Shelly for homelab fans
-
-  - platform: homeassistant
-    id: homelab_fans
-    entity_id: switch.drucker
-    on_value:
-      then:
-        - lvgl.widget.update:
-            id: btn_24
-            state:
-              checked: !lambda return (0 == x.compare(std::string{"on"}));
-              disabled: !lambda return ((0 == x.compare(std::string{"unavailable"})) or (0 == x.compare(std::string{"unknown"})));
-        - lvgl.label.update:
-            id: lbl_btn_24
-            text: !lambda |-
-              static char buf[10];
-              std::string icon;
-              if (0 == x.compare(std::string{"on"})) {
-                  icon = "󰈐";
-              } else {
-                  icon = "󰠝";
-              }
-              snprintf(buf, sizeof(buf), "%s", icon.c_str());
-              return buf;
-
-############## DELETE after implementing ESP32-based switch for fans
-
   - platform: homeassistant
     id: drucker_cr6
     entity_id: switch.drucker2
@@ -410,7 +383,6 @@ text_sensor:
               snprintf(buf, sizeof(buf), "%s", icon.c_str());
               return buf;
 
-
   - platform: homeassistant
     id: cr6_leds
     entity_id: switch.cr6_leds
@@ -432,6 +404,47 @@ text_sensor:
                 icon = "󱁑"; // led-strip icon for ON
               } else {
                 icon = "󱩋"; // led-stripe-off icon for OFF
+              }
+              snprintf(buf, sizeof(buf), "%s", icon.c_str());
+              return buf;
+
+  - platform: homeassistant
+    id: homelab_leistung
+    entity_id: sensor.shelly_homelab_leistung
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_btn_31
+            text: !lambda |-
+              static char buf[16];
+              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
+                snprintf(buf, sizeof(buf), "--.-w");
+                return buf;
+              }
+
+              float power = std::atof(x.c_str());
+              snprintf(buf, sizeof(buf), "%.1fw", power);
+              return buf;
+
+  - platform: homeassistant
+    id: homelab_fans
+    entity_id: switch.fan_homelab
+    on_value:
+      then:
+        - lvgl.widget.update:
+            id: btn_24
+            state:
+              checked: !lambda return (0 == x.compare(std::string{"on"}));
+              disabled: !lambda return ((0 == x.compare(std::string{"unavailable"})) or (0 == x.compare(std::string{"unknown"})));
+        - lvgl.label.update:
+            id: lbl_btn_24
+            text: !lambda |-
+              static char buf[10];
+              std::string icon;
+              if (0 == x.compare(std::string{"on"})) {
+                  icon = "󰈐";
+              } else {
+                  icon = "󰠝";
               }
               snprintf(buf, sizeof(buf), "%s", icon.c_str());
               return buf;
@@ -581,7 +594,7 @@ lvgl:
                   widgets:
                     - label:
                         id: lbl_btn_1
-                        text: "󱁑"
+                        text: "󱍢"
                         text_font: font_mdi
                         align: center
                   on_click:
@@ -600,7 +613,7 @@ lvgl:
                   widgets:
                     - label:
                         id: lbl_btn_2
-                        text: "󰈐"
+                        text: "󱍢"
                         text_font: font_mdi
                         align: center
                   on_click:
@@ -620,7 +633,7 @@ lvgl:
                   widgets:
                     - label:
                         id: lbl_btn_3
-                        text: "󰤝"
+                        text: "󱍢"
                         text_font: font_mdi
                         align: center
                   on_click:
@@ -695,7 +708,7 @@ lvgl:
                   widgets:
                     - label:
                         id: lbl_btn_7
-                        text: "--.-°C"
+                        text: "--.-°"
                         text_font: arimo30
                         align: center
 
@@ -729,7 +742,7 @@ lvgl:
                   widgets:
                     - label:
                         id: lbl_btn_9
-                        text: "--.-°C"
+                        text: "--.-°"
                         text_font: arimo30
                         align: center
 
@@ -1037,10 +1050,10 @@ lvgl:
                       - homeassistant.action:
                           action: switch.toggle
                           data:
-                            entity_id: switch.drucker
+                            entity_id: switch.fan_homelab
 
               - button:
-                  id: btn_32
+                  id: btn_26
                   grid_cell_column_pos: 2
                   grid_cell_row_pos: 0
                   grid_cell_row_span: 3
@@ -1051,10 +1064,26 @@ lvgl:
                     bg_color: default_button_pressed_bg_color
                   widgets:
                     - label:
-                        id: lbl_btn_32
+                        id: lbl_btn_26
                         text: "󰌑"
                         text_font: font_mdi
                         align: center
                   on_click:
                     then:
                     - lvgl.page.show: sub_page_menu
+
+              - button:
+                  id: btn_31
+                  grid_cell_column_pos: 1
+                  grid_cell_row_pos: 2
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  bg_color: default_button_bg_color
+                  pressed:
+                    bg_color: default_button_pressed_bg_color
+                  widgets:
+                    - label:
+                        id: lbl_btn_31
+                        text: "--.-w"
+                        text_font: arimo30
+                        align: center
