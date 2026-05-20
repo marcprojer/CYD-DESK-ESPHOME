@@ -14,7 +14,7 @@ esp32:
 # Enable logging
 logger:
   logs:
-    text_sensor: WARN
+    homeassistant.text_sensor: ERROR
 
 # Enable Home Assistant API
 api:
@@ -331,84 +331,6 @@ text_sensor:
               return buf;
 
   - platform: homeassistant
-    id: drucker_cr10
-    entity_id: switch.drucker
-    on_value:
-      then:
-        - lvgl.widget.update:
-            id: btn_11
-            state:
-              checked: !lambda return (0 == x.compare(std::string{"on"}));
-              disabled: !lambda return ((0 == x.compare(std::string{"unavailable"})) or (0 == x.compare(std::string{"unknown"})));
-        - lvgl.label.update:
-            id: lbl_btn_11
-            text: "CR10"
-
-  - platform: homeassistant
-    id: drucker_cr6
-    entity_id: switch.drucker2
-    on_value:
-      then:
-        - lvgl.widget.update:
-            id: btn_12
-            state:
-              checked: !lambda return (0 == x.compare(std::string{"on"}));
-              disabled: !lambda return ((0 == x.compare(std::string{"unavailable"})) or (0 == x.compare(std::string{"unknown"})));
-        - lvgl.label.update:
-            id: lbl_btn_12
-            text: "CR6"
-
-  - platform: homeassistant
-    id: cr10_leds
-    entity_id: switch.cr10_leds
-    on_value:
-      then:
-        - lvgl.widget.update:
-            id: btn_13
-            state:
-              checked: !lambda return (0 == x.compare(std::string{"on"}));
-              disabled: !lambda return ((0 == x.compare(std::string{"unavailable"})) or (0 == x.compare(std::string{"unknown"})));
-        - lvgl.label.update:
-            id: lbl_btn_13
-            text: !lambda |-
-              static char buf[10];
-              std::string icon;
-              if ((0 == x.compare(std::string{"unavailable"})) || (0 == x.compare(std::string{"unknown"}))) {
-                icon = "󰖪"; // no-wifi icon for unreachable (new icon placed here)
-              } else if (0 == x.compare(std::string{"on"})) {
-                icon = "󱁑"; // led-strip icon for ON
-              } else {
-                icon = "󱩋"; // led-stripe-off icon for OFF
-              }
-              snprintf(buf, sizeof(buf), "%s", icon.c_str());
-              return buf;
-
-  - platform: homeassistant
-    id: cr6_leds
-    entity_id: switch.cr6_leds
-    on_value:
-      then:
-        - lvgl.widget.update:
-            id: btn_14
-            state:
-              checked: !lambda return (0 == x.compare(std::string{"on"}));
-              disabled: !lambda return ((0 == x.compare(std::string{"unavailable"})) or (0 == x.compare(std::string{"unknown"})));
-        - lvgl.label.update:
-            id: lbl_btn_14
-            text: !lambda |-
-              static char buf[10];
-              std::string icon;
-              if ((0 == x.compare(std::string{"unavailable"})) || (0 == x.compare(std::string{"unknown"}))) {
-                icon = "󰖪"; // no-wifi icon for unreachable (new icon placed here)
-              } else if (0 == x.compare(std::string{"on"})) {
-                icon = "󱁑"; // led-strip icon for ON
-              } else {
-                icon = "󱩋"; // led-stripe-off icon for OFF
-              }
-              snprintf(buf, sizeof(buf), "%s", icon.c_str());
-              return buf;
-
-  - platform: homeassistant
     id: homelab_leistung
     entity_id: sensor.shelly_homelab_leistung
     on_value:
@@ -448,6 +370,131 @@ text_sensor:
               }
               snprintf(buf, sizeof(buf), "%s", icon.c_str());
               return buf;
+
+  - platform: homeassistant
+    id: drucker_power
+    entity_id: sensor.3d_drucker_power
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_btn_11
+            text: !lambda |-
+              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
+                return std::string{};
+              }
+
+              static char buf[16];
+              snprintf(buf, sizeof(buf), "%sw", x.c_str());
+              return std::string{buf};
+        - lvgl.label.update:
+            id: lbl_btn_11_icon
+            text: !lambda |-
+              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
+                return std::string{"󰖪"};
+              }
+
+              return std::string{};
+
+  - platform: homeassistant
+    id: p2s_druckfortschritt
+    entity_id: sensor.p2s_druckfortschritt
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_btn_12
+            text: !lambda |-
+              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
+                return std::string{};
+              }
+
+              static char buf[16];
+              snprintf(buf, sizeof(buf), "%s%%", x.c_str());
+              return std::string{buf};
+        - lvgl.label.update:
+            id: lbl_btn_12_icon
+            text: !lambda |-
+              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
+                return std::string{"󰖪"};
+              }
+
+              return std::string{};
+
+  - platform: homeassistant
+    id: p2s_verbleibende_zeit
+    entity_id: sensor.p2s_verbleibende_zeit
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_btn_13
+            text: !lambda |-
+              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
+                return std::string{};
+              }
+
+              float hours = std::atof(x.c_str());
+              int total_minutes = static_cast<int>(hours * 60.0f + 0.5f);
+              int display_hours = total_minutes / 60;
+              int display_minutes = total_minutes % 60;
+
+              static char buf[16];
+              snprintf(buf, sizeof(buf), "%d:%02dh", display_hours, display_minutes);
+              return std::string{buf};
+        - lvgl.label.update:
+            id: lbl_btn_13_icon
+            text: !lambda |-
+              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
+                return std::string{"󰖪"};
+              }
+
+              return std::string{};
+
+  - platform: homeassistant
+    id: p2s_dusengrosse
+    entity_id: sensor.p2s_dusengrosse
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_btn_14
+            text: !lambda |-
+              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
+                return std::string{};
+              }
+
+              static char buf[16];
+              snprintf(buf, sizeof(buf), "%s mm", x.c_str());
+              return std::string{buf};
+        - lvgl.label.update:
+            id: lbl_btn_14_icon
+            text: !lambda |-
+              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
+                return std::string{"󰖪"};
+              }
+
+              return std::string{};
+
+  - platform: homeassistant
+    id: ams_luftfeuchtigkeit
+    entity_id: sensor.ams_luftfeuchtigkeit
+    on_value:
+      then:
+        - lvgl.label.update:
+            id: lbl_btn_15
+            text: !lambda |-
+              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
+                return std::string{};
+              }
+
+              static char buf[16];
+              snprintf(buf, sizeof(buf), "%s%%", x.c_str());
+              return std::string{buf};
+        - lvgl.label.update:
+            id: lbl_btn_15_icon
+            text: !lambda |-
+              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
+                return std::string{"󰖪"};
+              }
+
+              return std::string{};
 
 # Current time sensor for middle button display
   - platform: template
@@ -884,18 +931,17 @@ lvgl:
     - id: sub_page_3d
       pad_all: 0
       widgets:
-          - obj:
-              width: 320
-              height: 240
-              bg_color: room_bg_color
-              layout:
-                type: grid
-                grid_columns: [fr(1), fr(1), fr(1)]
-                grid_rows: [fr(1), fr(1), fr(1)]
-              pad_all: 5px
-              outline_pad: 5px
-              widgets:
-                # Add new buttons/widgets here
+        - obj:
+            width: 320
+            height: 240
+            bg_color: room_bg_color
+            layout:
+              type: grid
+              grid_columns: [fr(1), fr(1), fr(1)]
+              grid_rows: [fr(1), fr(1), fr(1)]
+            pad_all: 5px
+            outline_pad: 5px
+            widgets:
               - button:
                   id: btn_10
                   grid_cell_column_pos: 0
@@ -918,23 +964,45 @@ lvgl:
 
               - button:
                   id: btn_11
+                  grid_cell_column_pos: 1
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  bg_color: default_button_bg_color
+                  pressed:
+                    bg_color: default_button_pressed_bg_color
+                  widgets:
+                    - label:
+                        id: lbl_btn_11_icon
+                        text: "󰖪"
+                        text_font: font_mdi
+                        align: center
+                    - label:
+                        id: lbl_btn_11
+                        text: ""
+                        text_font: arimo30
+                        align: center
+
+              - button:
+                  id: btn_12
                   grid_cell_column_pos: 0
                   grid_cell_row_pos: 1
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  checkable: true
+                  bg_color: default_button_bg_color
+                  pressed:
+                    bg_color: default_button_pressed_bg_color
                   widgets:
                     - label:
-                        id: lbl_btn_11
-                        text: "CR10"
-                        text_font: arimo36
+                        id: lbl_btn_12_icon
+                        text: "󰖪"
+                        text_font: font_mdi
                         align: center
-                  on_click:
-                    then:
-                      - homeassistant.action:
-                          action: switch.toggle
-                          data:
-                            entity_id: switch.drucker
+                    - label:
+                        id: lbl_btn_12
+                        text: ""
+                        text_font: arimo30
+                        align: center
 
               - button:
                   id: btn_13
@@ -942,62 +1010,65 @@ lvgl:
                   grid_cell_row_pos: 1
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  checkable: true
+                  bg_color: default_button_bg_color
+                  pressed:
+                    bg_color: default_button_pressed_bg_color
                   widgets:
                     - label:
-                        id: lbl_btn_13
-                        text: "󰌑"
+                        id: lbl_btn_13_icon
+                        text: "󰖪"
                         text_font: font_mdi
                         align: center
-                  on_click:
-                    then:
-                      - homeassistant.action:
-                          action: switch.toggle
-                          data:
-                            entity_id: switch.cr10_leds
+                    - label:
+                        id: lbl_btn_13
+                        text: ""
+                        text_font: arimo30
+                        align: center
 
               - button:
                   id: btn_14
-                  grid_cell_column_pos: 1
-                  grid_cell_row_pos: 2
-                  grid_cell_x_align: STRETCH
-                  grid_cell_y_align: STRETCH
-                  checkable: true
-                  widgets:
-                    - label:
-                        id: lbl_btn_14
-                        text: "󰌑"
-                        text_font: font_mdi
-                        align: center
-                  on_click:
-                    then:
-                      - homeassistant.action:
-                          action: switch.toggle
-                          data:
-                            entity_id: switch.cr6_leds
-
-              - button:
-                  id: btn_12
                   grid_cell_column_pos: 0
                   grid_cell_row_pos: 2
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
-                  checkable: true
+                  bg_color: default_button_bg_color
+                  pressed:
+                    bg_color: default_button_pressed_bg_color
                   widgets:
                     - label:
-                        id: lbl_btn_12
-                        text: "CR6"
-                        text_font: arimo36
+                        id: lbl_btn_14_icon
+                        text: "󰖪"
+                        text_font: font_mdi
                         align: center
-                  on_click:
-                    then:
-                      - homeassistant.action:
-                          action: switch.toggle
-                          data:
-                            entity_id: switch.drucker2
+                    - label:
+                        id: lbl_btn_14
+                        text: ""
+                        text_font: arimo30
+                        align: center
 
               - button:
                   id: btn_15
+                  grid_cell_column_pos: 1
+                  grid_cell_row_pos: 2
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  bg_color: default_button_bg_color
+                  pressed:
+                    bg_color: default_button_pressed_bg_color
+                  widgets:
+                    - label:
+                        id: lbl_btn_15_icon
+                        text: "󰖪"
+                        text_font: font_mdi
+                        align: center
+                    - label:
+                        id: lbl_btn_15
+                        text: ""
+                        text_font: arimo30
+                        align: center
+
+              - button:
+                  id: btn_21
                   grid_cell_column_pos: 2
                   grid_cell_row_pos: 0
                   grid_cell_row_span: 3
@@ -1008,13 +1079,13 @@ lvgl:
                     bg_color: default_button_pressed_bg_color
                   widgets:
                     - label:
-                        id: lbl_btn_15
+                        id: lbl_btn_21
                         text: "󰌑"
                         text_font: font_mdi
                         align: center
                   on_click:
                     then:
-                    - lvgl.page.show: sub_page_menu
+                      - lvgl.page.show: sub_page_menu
 
 # Sub page for Homelab
     - id: sub_page_homelab
