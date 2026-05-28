@@ -73,7 +73,12 @@ font:
     id: arimo14
     size: 14
     glyphs:
-      - "0123456789"
+      - " -.,:°%0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+  - file: "fonts/Arimo-Regular.ttf"  # Path to main font file
+    id: arimo12                                         # ID used to reference this font
+    size: 12                                           # Font size
+    glyphs:                                             # Characters to include in font. Only 
+      - " -.,:°%0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
   - file: fonts/materialdesignicons-webfont.ttf         # Defining Material Design Icons as a font. This
     id: font_mdi                                       # will allow us to use them as button icons.
     size: 48                                            # You can get these glyphs from the https://pictogrammers.com/library/mdi/
@@ -288,23 +293,27 @@ text_sensor:
               snprintf(buf, sizeof(buf), "%.1f°C", temp);
               return buf;
 
-# Show Dyson vent humidity on btn_8
   - platform: homeassistant
-    id: dyson_vent_humidity
-    entity_id: sensor.dyson_vent_humidity
+    id: dyson_vent_fan
+    entity_id: fan.dyson_vent
     on_value:
       then:
+        - lvgl.widget.update:
+            id: btn_8
+            state:
+              checked: !lambda return (0 == x.compare(std::string{"on"}));
+              disabled: !lambda return ((0 == x.compare(std::string{"unavailable"})) or (0 == x.compare(std::string{"unknown"})));
         - lvgl.label.update:
             id: lbl_btn_8
             text: !lambda |-
-              static char buf[16];
-              if (x.empty() || x == "unknown" || x == "unavailable" || x == "none") {
-                snprintf(buf, sizeof(buf), "--.-%%");
-                return buf;
+              static char buf[10];
+              std::string icon;
+              if (0 == x.compare(std::string{"on"})) {
+                  icon = "󰈐";
+              } else {
+                  icon = "󰠝";
               }
-
-              float hum = std::atof(x.c_str());
-              snprintf(buf, sizeof(buf), "%.1f%%", hum);
+              snprintf(buf, sizeof(buf), "%s", icon.c_str());
               return buf;
 
   - platform: homeassistant
@@ -496,7 +505,7 @@ text_sensor:
 
               return std::string{};
 
-# Current time sensor for middle button display
+# Current time sensor for clock button display
   - platform: template
     name: "Current Time"
     id: current_time_display
@@ -713,7 +722,7 @@ lvgl:
               - button:
                   id: btn_5
                   grid_cell_column_pos: 1
-                  grid_cell_row_pos: 1
+                  grid_cell_row_pos: 2
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
                   bg_color: default_button_bg_color
@@ -754,27 +763,39 @@ lvgl:
                     bg_color: default_button_pressed_bg_color
                   widgets:
                     - label:
+                        id: lbl_btn_7_title
+                        text: "Innen"
+                        text_font: arimo12
+                        align: top_mid
+                    - label:
                         id: lbl_btn_7
                         text: "--.-°"
                         text_font: arimo30
-                        align: center
+                        align: bottom_mid
 
 
               - button:
                   id: btn_8
                   grid_cell_column_pos: 1
-                  grid_cell_row_pos: 2
+                  grid_cell_row_pos: 1
                   grid_cell_x_align: STRETCH
                   grid_cell_y_align: STRETCH
+                  checkable: true
                   bg_color: default_button_bg_color
                   pressed:
                     bg_color: default_button_pressed_bg_color
                   widgets:
                     - label:
                         id: lbl_btn_8
-                        text: "--.-%"
-                        text_font: arimo30
+                        text: "󰠝"
+                        text_font: font_mdi
                         align: center
+                  on_click:
+                    then:
+                      - homeassistant.action:
+                          action: fan.toggle
+                          data:
+                            entity_id: fan.dyson_vent
 
 
               - button:
@@ -788,10 +809,15 @@ lvgl:
                     bg_color: default_button_pressed_bg_color
                   widgets:
                     - label:
+                        id: lbl_btn_9_title
+                        text: "Aussen"
+                        text_font: arimo12
+                        align: top_mid
+                    - label:
                         id: lbl_btn_9
                         text: "--.-°"
                         text_font: arimo30
-                        align: center
+                        align: bottom_mid
 
 # Sub page for menu
     - id: sub_page_menu
