@@ -312,6 +312,20 @@ text_sensor:
               return buf;
 
   - platform: homeassistant
+    id: dyson_vent_percentage
+    entity_id: fan.dyson_vent
+    attribute: percentage
+    on_value:
+      then:
+        - lvgl.slider.update:
+            id: slider_dyson_vent
+            value: !lambda |-
+              if (x.empty()) {
+                return 0;
+              }
+              return (int) std::lround(std::stof(x));
+
+  - platform: homeassistant
     id: drucker_3d
     entity_id: switch.3d_drucker
     on_value:
@@ -790,12 +804,15 @@ lvgl:
                         text: "󰠝"
                         text_font: font_mdi
                         align: center
-                  on_click:
+                  on_short_click:
                     then:
                       - homeassistant.action:
                           action: fan.toggle
                           data:
                             entity_id: fan.dyson_vent
+                  on_long_press:
+                    then:
+                      - lvgl.page.show: sub_page_dyson
 
 
               - button:
@@ -1119,7 +1136,12 @@ lvgl:
                     then:
                       - lvgl.page.show: sub_page_menu
 
-# Sub page for Homelab
+# ============================================================================================================
+#
+#                     Sub page for Homelab
+#
+# ============================================================================================================  
+
     - id: sub_page_homelab
       pad_all: 0
       widgets:
@@ -1190,3 +1212,84 @@ lvgl:
                         text: "--.-w"
                         text_font: arimo30
                         align: center
+
+
+# ============================================================================================================
+#
+#                     Sub page for Dyson Fan
+#
+# ============================================================================================================
+
+
+    - id: sub_page_dyson
+      pad_all: 0
+      widgets:
+          - obj:
+              width: 320
+              height: 240
+              bg_color: room_bg_color
+              layout:
+                type: grid
+                grid_columns: [fr(1), fr(1), fr(1)]
+                grid_rows: [fr(1), fr(1), fr(1)]
+              pad_all: 5px
+              outline_pad: 5px
+              widgets:
+              - button:
+                  id: btn_60
+                  grid_cell_column_pos: 2
+                  grid_cell_row_pos: 0
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  bg_color: default_button_bg_color
+                  pressed:
+                    bg_color: default_button_pressed_bg_color
+                  widgets:
+                    - label:
+                        id: lbl_btn_60
+                        text: "󰌑"
+                        text_font: font_mdi
+                        align: center
+                  on_click:
+                    then:
+                      - lvgl.page.show: main_page
+
+              - slider:
+                  id: slider_dyson_vent
+                  grid_cell_column_pos: 0
+                  grid_cell_row_pos: 2
+                  grid_cell_column_span: 3
+                  grid_cell_x_align: STRETCH
+                  grid_cell_y_align: STRETCH
+                  width: 100%
+                  height: 42
+                  min_value: 0
+                  max_value: 100
+                  value: 0
+                  bg_color: default_button_bg_color
+                  indicator:
+                    bg_color: default_button_pressed_bg_color
+                  knob:
+                    bg_color: 0xFFFFFF
+                  on_release:
+                    then:
+                      - lvgl.slider.update:
+                          id: slider_dyson_vent
+                          value: !lambda |-
+                            return std::min(100, std::max(0, (int(x + 5) / 10) * 10));
+                      - if:
+                          condition:
+                            lambda: |-
+                              return std::min(100, std::max(0, (int(x + 5) / 10) * 10)) == 0;
+                          then:
+                            - homeassistant.action:
+                                action: fan.turn_off
+                                data:
+                                  entity_id: fan.dyson_vent
+                          else:
+                            - homeassistant.action:
+                                action: fan.set_percentage
+                                data:
+                                  entity_id: fan.dyson_vent
+                                  percentage: !lambda |-
+                                    return std::min(100, std::max(0, (int(x + 5) / 10) * 10));
