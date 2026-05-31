@@ -11,12 +11,10 @@ esp32:
   framework:
     type: esp-idf
 
-# Enable logging
 logger:
   logs:
     homeassistant.text_sensor: ERROR
 
-# Enable Home Assistant API
 api:
   encryption:
     key: !secret api_key_CYD
@@ -29,18 +27,17 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
 
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: "Cyd-Home-Office Fallback Hotspot"
     password: !secret fb_pw_CYD
 
 captive_portal:
 
-# Time component for scheduled anti-burn pixel training
+# Time component
 time:
   - platform: sntp
     id: sntp_time
-    timezone: Europe/Zurich  # Adjust to your timezone
+    timezone: Europe/Zurich
     servers:
       - 0.pool.ntp.org
       - 1.pool.ntp.org
@@ -64,20 +61,20 @@ font:
     size: 36                                            # Font size
     glyphs:                                             # Characters to include in font. Only 
       - " -.,:°%0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-  - file: "fonts/Arimo-Regular.ttf"  # Path to main font file
-    id: arimo30                                         # ID used to reference this font
-    size: 30                                            # Font size
-    glyphs:                                             # Characters to include in font. Only 
+  - file: "fonts/Arimo-Regular.ttf"  
+    id: arimo30                                         
+    size: 30                                            
+    glyphs:                                             
       - " -.,:°%0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-  - file: "fonts/Arimo-Regular.ttf"                     # Giving an ID for a larger size of that font.
+  - file: "fonts/Arimo-Regular.ttf"                     
     id: arimo14
     size: 14
     glyphs:
       - " -.,:°%0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-  - file: "fonts/Arimo-Regular.ttf"  # Path to main font file
-    id: arimo12                                         # ID used to reference this font
-    size: 12                                           # Font size
-    glyphs:                                             # Characters to include in font. Only 
+  - file: "fonts/Arimo-Regular.ttf"  
+    id: arimo12                                         
+    size: 12                                           
+    glyphs:                                             
       - " -.,:°%0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
   - file: fonts/materialdesignicons-webfont.ttf         # Defining Material Design Icons as a font. This
     id: font_mdi                                       # will allow us to use them as button icons.
@@ -124,7 +121,9 @@ color:
     hex: "D3D3D3"
 
 # ============================================================ 
-# Home Assistant related setup
+#
+#         Home Assistant related setup
+#
 # ============================================================
 
 # Setting the single channel backlight as a light entity in Home Assistant
@@ -160,10 +159,7 @@ switch:
             - lvgl.resume:
             - lvgl.widget.redraw:
 
-# These sensors mirror the state of Home Assistant entities on boot,
-# or whenever the entity's state changes. 
 text_sensor:
-# Show outdoor temperature on btn_9 (aqara loggia)
   - platform: homeassistant
     id: aqara_temp_logia
     entity_id: sensor.aqara_temp_logia_temperature
@@ -274,7 +270,6 @@ text_sensor:
               snprintf(buf, sizeof(buf), "%s", icon.c_str());
               return buf;
 
-# Show Dyson vent temperature on btn_7
   - platform: homeassistant
     id: dyson_vent_temperature
     entity_id: sensor.dyson_vent_temperature
@@ -527,7 +522,9 @@ text_sensor:
               return x.c_str();
 
 # ============================================================ 
-# Touchscreen Display related setup
+#
+#           Touchscreen Display related setup
+#
 # ============================================================
 
 # SPI bus for TFT display and touch controller
@@ -554,7 +551,6 @@ globals:
     restore_value: no
     initial_value: "true"
 
-# Defining the touchscreen for later use
 touchscreen:
   platform: xpt2046
   spi_id: touch
@@ -599,7 +595,12 @@ display:
     auto_clear_enabled: false
     show_test_card: false
 
-# Defining the buttons displayed
+# ============================================================================================================ 
+#          
+#                     Defining the buttons displayed
+#
+# ============================================================================================================
+
 lvgl:
   buffer_size: 25%
   displays:
@@ -609,7 +610,6 @@ lvgl:
   page_wrap: false
   theme:
     button:
-      # Match E32R35T theme exactly
       bg_color: 0x000000
       #bg_opa: COVER
       border_color: 0xFFFFFF
@@ -819,7 +819,10 @@ lvgl:
                         text_font: arimo30
                         align: bottom_mid
 
-# Sub page for menu
+# ============================================================================================================
+#                     Sub page for menu
+# ============================================================================================================
+
     - id: sub_page_menu
       pad_all: 0
       widgets:
@@ -952,8 +955,11 @@ lvgl:
                       text: "󰒴"
                       text_font: font_mdi
                       align: center
-                 
-# Sub page for 3D-Printer
+
+# ============================================================================================================
+#                     Sub page for 3D-Printer
+# ============================================================================================================        
+
     - id: sub_page_3d
       pad_all: 0
       widgets:
