@@ -102,6 +102,8 @@ font:
       - 󱄄  # monitor-shimmer
       - 󰒴  # smoking
       - 󰒵  # smoking-off
+      - 󰈺  # fish
+      - 󱏳  # fish-off
 
 image:
   - file: pictures/logo.png
@@ -159,6 +161,8 @@ switch:
             - lvgl.resume:
             - lvgl.widget.redraw:
 
+#Home Assistant integration
+
 text_sensor:
   - platform: homeassistant
     id: aqara_temp_logia
@@ -180,7 +184,7 @@ text_sensor:
 
   - platform: homeassistant
     id: decke_homeoffice
-    entity_id: light.decke_homeoffice
+    entity_id: light.office_decke
     on_value:
       then:
         - lvgl.widget.update:
@@ -194,9 +198,9 @@ text_sensor:
               static char buf[10];
               std::string icon;
               if (0 == x.compare(std::string{"on"})) {
-                  icon = "󰛨";  // mdi:lightbulb-on
+                  icon = "󰈺";
               } else {
-                  icon = "󰌶";  // lightbulb-off
+                  icon = "󱏳";
               }
               snprintf(buf, sizeof(buf), "%s", icon.c_str());
               return buf;
@@ -217,9 +221,9 @@ text_sensor:
               static char buf[10];
               std::string icon;
               if (0 == x.compare(std::string{"on"})) {
-                  icon = "󱟴";  // mdi:led-strip-variant
+                  icon = "󱟴";
               } else {
-                  icon = "󱟵";  // mdi:led-strip-variant-off
+                  icon = "󱟵";
               }
               snprintf(buf, sizeof(buf), "%s", icon.c_str());
               return buf;
@@ -240,9 +244,9 @@ text_sensor:
               static char buf[10];
               std::string icon;
               if (0 == x.compare(std::string{"on"})) {
-                  icon = "󱬠";  // mdi:desk-lamp
+                  icon = "󱬠";
               } else {
-                  icon = "󱬟";  // mdi:desk-lamp-off
+                  icon = "󱬟";
               }
               snprintf(buf, sizeof(buf), "%s", icon.c_str());
               return buf;
@@ -653,7 +657,6 @@ lvgl:
             pad_all: 5px
             outline_pad: 5px
             widgets:
-              # ...existing code...
               - button:
                   id: btn_1
                   grid_cell_column_pos: 0
@@ -672,7 +675,7 @@ lvgl:
                       - homeassistant.action:
                           action: light.toggle
                           data:
-                            entity_id: light.decke_homeoffice
+                            entity_id: light.office_decke
               - button:
                   id: btn_2
                   grid_cell_column_pos: 1
